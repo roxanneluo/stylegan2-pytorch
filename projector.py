@@ -189,15 +189,23 @@ if __name__ == '__main__':
     result_file = {'noises': noises}
 
     img_gen, _ = g_ema([latent_path[-1]], input_is_latent=True, noise=noises)
+    img_gen_no_noise, _ = g_ema([latent_path[-1]], input_is_latent=True,
+                                noise=[torch.zeros_like(n) for n in noises])
 
     filename = os.path.splitext(os.path.basename(args.files[0]))[0] + '.pt'
 
     img_ar = make_image(img_gen)
+    img_ar_no_noise = make_image(img_gen)
 
     for i, input_name in enumerate(args.files):
         result_file[input_name] = {'img': img_gen[i], 'latent': latent_in[i]}
         img_name = os.path.splitext(os.path.basename(input_name))[0] + '-project.png'
         pil_img = Image.fromarray(img_ar[i])
         pil_img.save(img_name)
+
+        img_no_noise_name = os.path.splitext(img_name)[0] + "-no_noise.png"
+        pil_img = Image.fromarray(img_ar_no_noise[i])
+        pil_img.save(img_name)
+
 
     torch.save(result_file, filename)
